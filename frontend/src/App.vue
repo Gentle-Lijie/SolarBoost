@@ -179,7 +179,7 @@
           <!-- 调度策略 -->
           <div class="alert alert-info shadow-2xl border border-info/20 bg-gradient-to-r from-info/10 to-info/5 hover:shadow-3xl transition-all duration-300">
             <div class="flex items-center gap-3">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-8 h-8 animate-pulse">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-8 h-8">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
               <div class="flex-1">
@@ -196,15 +196,15 @@
           <div class="card bg-gradient-to-br from-base-100 to-base-200 shadow-2xl hover:shadow-3xl transition-all duration-300 border border-base-300">
             <div class="card-body">
               <h2 class="card-title">
-                <span class="text-3xl animate-bounce">🎮</span>
+                <span class="text-3xl">🎮</span>
                 工作模式切换
               </h2>
-              <div class="grid grid-cols-2 gap-3">
+              <div class="grid grid-cols-2 gap-4">
                 <button 
                   v-for="mode in modes" 
                   :key="mode.value"
                   :class="[
-                    'btn hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg',
+                    'btn m-2 hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg',
                     currentMode === mode.value 
                       ? 'btn-primary btn-active shadow-primary/50' 
                       : 'btn-outline hover:bg-base-200'
@@ -222,10 +222,10 @@
           <div class="card bg-gradient-to-br from-base-100 to-base-200 shadow-2xl hover:shadow-3xl transition-all duration-300 border border-base-300">
             <div class="card-body max-h-[600px] overflow-y-auto">
               <h2 class="card-title">
-                <span class="text-3xl animate-pulse">📡</span>
+                <span class="text-3xl">📡</span>
                 传感器数据控制
               </h2>
-              <div class="btn-group btn-group-horizontal w-full mb-4">
+              <div class="btn-group btn-group-horizontal w-full mb-4 gap-2">
                 <button 
                   :class="['btn btn-sm flex-1 hover:scale-105 transition-transform', sensorMode === 'auto' ? 'btn-active btn-success' : 'btn-outline']"
                   @click="setSensorMode('auto')"
@@ -284,7 +284,7 @@
                 </div>
               </div>
 
-              <div v-if="sensorMode === 'manual'" class="card-actions justify-end mt-4">
+              <div v-if="sensorMode === 'manual'" class="card-actions justify-end mt-4 gap-2">
                 <button class="btn btn-sm btn-success" @click="applyManualSensors">应用设置</button>
                 <button class="btn btn-sm btn-ghost" @click="resetManualSensors">重置</button>
               </div>
@@ -329,7 +329,7 @@
                          @input="updateManualCommand"
                          class="range range-success" />
                 </div>
-                <button class="btn btn-primary w-full" @click="applyManualCommand">应用设置</button>
+                <button class="btn btn-primary w-full m-2" @click="applyManualCommand">应用设置</button>
               </div>
             </div>
           </div>
@@ -338,7 +338,7 @@
           <div class="card bg-gradient-to-br from-base-100 to-base-200 shadow-2xl hover:shadow-3xl transition-all duration-300 border border-base-300">
             <div class="card-body">
               <h2 class="card-title">
-                <span class="text-3xl animate-pulse">📋</span>
+                <span class="text-3xl">📋</span>
                 系统事件日志
               </h2>
               <div class="mockup-code max-h-64 overflow-y-auto bg-base-300 shadow-inner rounded-lg">
