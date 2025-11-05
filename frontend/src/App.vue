@@ -101,20 +101,20 @@
             <!-- 状态卡片 -->
             <div class="flex space-x-4">
               <div class="bg-base-100 border border-base-300 rounded-lg px-4 py-2 shadow-sm">
-                <div class="text-xs text-base-content/60 uppercase tracking-wide">电池SOC</div>
-                <div class="text-lg font-semibold text-base-content">
+                <div class="text-sm text-base-content/60 uppercase tracking-wide">电池SOC</div>
+                <div class="text-xl font-semibold text-base-content">
                   {{ (sensorData.vehicle?.soc * 100 || 0).toFixed(1) }}%
                 </div>
               </div>
               <div class="bg-base-100 border border-base-300 rounded-lg px-4 py-2 shadow-sm">
-                <div class="text-xs text-base-content/60 uppercase tracking-wide">光伏功率</div>
-                <div class="text-lg font-semibold text-warning">
+                <div class="text-sm text-base-content/60 uppercase tracking-wide">光伏功率</div>
+                <div class="text-xl font-semibold text-warning">
                   {{ sensorData.pv?.power || 0 }}W
                 </div>
               </div>
               <div class="bg-base-100 border border-base-300 rounded-lg px-4 py-2 shadow-sm">
-                <div class="text-xs text-base-content/60 uppercase tracking-wide">当前模式</div>
-                <div class="text-lg font-semibold text-primary">
+                <div class="text-sm text-base-content/60 uppercase tracking-wide">当前模式</div>
+                <div class="text-xl font-semibold text-primary">
                   {{ modeText }}
                 </div>
               </div>
@@ -141,7 +141,7 @@
               <div class="w-full overflow-hidden rounded-lg bg-gray-900" style="height: 280px;">
                 <canvas ref="roadCanvas" style="width: 100%; height: 100%;"></canvas>
               </div>
-              <div class="flex justify-between items-center mt-4 text-sm text-base-content/70">
+              <div class="flex justify-between items-center mt-4 text-base text-base-content/70">
                 <div class="flex items-center space-x-2">
                   <div class="w-2 h-2 bg-red-500 rounded-full"></div>
                   <span>速度: {{ sensorData.vehicle?.speed?.toFixed(1) || 0 }} km/h</span>
@@ -165,20 +165,17 @@
                 <div class="flex flex-col items-center justify-center space-y-4 flex-1">
                   <!-- 太阳能源输入 -->
                   <div class="flex flex-col items-center">
-                    <div class="radial-progress text-primary" :style="`--value:${Math.min((sensorData.pv?.power || 0) / 50, 100)};`" role="progressbar">
-                      <span class="text-2xl font-bold text-primary">{{ sensorData.pv?.power || 0 }}</span>
-                    </div>
-                    <div class="text-center mt-2">
-                      <div class="font-bold text-lg text-primary">{{ sensorData.pv?.power || 0 }}W</div>
-                      <div class="text-xs opacity-70">太阳能输入</div>
+                    <div class="text-center">
+                      <div class="font-bold text-xl text-primary">{{ sensorData.pv?.power || 0 }}W</div>
+                      <div class="text-sm opacity-70">太阳能输入</div>
                     </div>
                   </div>
 
                   <!-- 总能量平衡 -->
                   <div class="w-full bg-base-200 p-4 rounded-lg">
                     <div class="text-center">
-                      <div class="text-sm font-medium mb-2">能量平衡</div>
-                      <div class="grid grid-cols-1 gap-2 text-sm">
+                      <div class="text-base font-medium mb-3">能量平衡</div>
+                      <div class="grid grid-cols-1 gap-3 text-base">
                         <div class="flex justify-between">
                           <span>输入:</span>
                           <span class="font-mono text-success">{{ sensorData.pv?.power?.toFixed(0) || 0 }}W</span>
@@ -197,40 +194,40 @@
                   <!-- 动力系统 -->
                   <div class="bg-base-200 p-4 rounded-lg border-l-4 border-primary">
                     <div class="flex justify-between items-center mb-2">
-                      <span class="text-sm font-medium">� 动力系统</span>
-                      <span class="text-sm font-mono text-primary">{{ dispatchCommand.to_motor?.toFixed(0) || 0 }}W</span>
+                      <span class="text-base font-medium">动力系统</span>
+                      <span class="text-base font-mono text-primary">{{ dispatchCommand.to_motor?.toFixed(0) || 0 }}W</span>
                     </div>
-                    <div class="w-full h-3 bg-base-300 rounded-full overflow-hidden mb-2">
+                    <div class="w-full h-4 bg-base-300 rounded-full overflow-hidden mb-2">
                       <div class="h-full bg-primary transition-all duration-300"
                            :style="`width: ${getFlowWidth('motor')}%`"></div>
                     </div>
-                    <div class="text-xs opacity-70">实际需求: {{ predictions.energy?.predicted_motor_power?.toFixed(0) || 0 }}W</div>
+                    <div class="text-sm opacity-70">实际需求: {{ predictions.energy?.predicted_motor_power?.toFixed(0) || 0 }}W</div>
                   </div>
 
                   <!-- 附件系统 -->
                   <div class="bg-base-200 p-4 rounded-lg border-l-4 border-secondary">
                     <div class="flex justify-between items-center mb-2">
-                      <span class="text-sm font-medium">� 附件系统</span>
-                      <span class="text-sm font-mono text-secondary">{{ dispatchCommand.to_aux?.toFixed(0) || 0 }}W</span>
+                      <span class="text-base font-medium">附件系统</span>
+                      <span class="text-base font-mono text-secondary">{{ dispatchCommand.to_aux?.toFixed(0) || 0 }}W</span>
                     </div>
-                    <div class="w-full h-3 bg-base-300 rounded-full overflow-hidden mb-2">
+                    <div class="w-full h-4 bg-base-300 rounded-full overflow-hidden mb-2">
                       <div class="h-full bg-secondary transition-all duration-300"
                            :style="`width: ${getFlowWidth('aux')}%`"></div>
                     </div>
-                    <div class="text-xs opacity-70">实际需求: {{ predictions.energy?.predicted_aux_power?.toFixed(0) || 0 }}W</div>
+                    <div class="text-sm opacity-70">实际需求: {{ predictions.energy?.predicted_aux_power?.toFixed(0) || 0 }}W</div>
                   </div>
 
                   <!-- 电池充电 -->
                   <div class="bg-base-200 p-4 rounded-lg border-l-4 border-accent">
                     <div class="flex justify-between items-center mb-2">
-                      <span class="text-sm font-medium">🔋 电池充电</span>
-                      <span class="text-sm font-mono text-accent">{{ dispatchCommand.to_charge?.toFixed(0) || 0 }}W</span>
+                      <span class="text-base font-medium">电池充电</span>
+                      <span class="text-base font-mono text-accent">{{ dispatchCommand.to_charge?.toFixed(0) || 0 }}W</span>
                     </div>
-                    <div class="w-full h-3 bg-base-300 rounded-full overflow-hidden mb-2">
+                    <div class="w-full h-4 bg-base-300 rounded-full overflow-hidden mb-2">
                       <div class="h-full bg-accent transition-all duration-300"
                            :style="`width: ${getFlowWidth('charge')}%`"></div>
                     </div>
-                    <div class="text-xs opacity-70">SOC: {{ (sensorData.vehicle?.soc * 100 || 0).toFixed(1) }}%</div>
+                    <div class="text-sm opacity-70">SOC: {{ (sensorData.vehicle?.soc * 100 || 0).toFixed(1) }}%</div>
                   </div>
                 </div>
               </div>
@@ -247,8 +244,8 @@
               <div class="space-y-4">
                 <!-- 能耗预测 -->
                 <div class="bg-base-200 p-4 rounded-lg border border-base-300">
-                  <h4 class="font-medium text-sm text-base-content mb-3">能耗预测</h4>
-                  <div class="space-y-2 text-sm">
+                  <h4 class="font-medium text-base text-base-content mb-3">能耗预测</h4>
+                  <div class="space-y-3 text-base">
                     <div class="flex justify-between">
                       <span class="text-base-content/70">动力:</span>
                       <span class="font-mono text-primary">{{ predictions.energy?.predicted_motor_power?.toFixed(0) || 0 }}W</span>
@@ -266,8 +263,8 @@
 
                 <!-- 光伏预测 -->
                 <div class="bg-base-200 p-4 rounded-lg border border-base-300">
-                  <h4 class="font-medium text-sm text-base-content mb-3">光伏预测</h4>
-                  <div class="space-y-2 text-sm">
+                  <h4 class="font-medium text-base text-base-content mb-3">光伏预测</h4>
+                  <div class="space-y-3 text-base">
                     <div class="flex justify-between">
                       <span class="text-base-content/70">功率:</span>
                       <span class="font-mono text-warning">{{ predictions.solar?.predicted_pv_power?.toFixed(0) || 0 }}W</span>
@@ -285,10 +282,10 @@
 
                 <!-- 决策解释 -->
                 <div class="bg-base-200 p-4 rounded-lg border border-base-300">
-                  <h4 class="font-medium text-sm text-base-content mb-3">决策理由</h4>
-                  <div class="text-sm">
+                  <h4 class="font-medium text-base text-base-content mb-3">决策理由</h4>
+                  <div class="text-base">
                     <div class="font-medium text-base-content mb-2">{{ getCurrentScenario() }}</div>
-                    <div class="bg-info/10 p-3 rounded-lg text-xs text-base-content border border-info/20">
+                    <div class="bg-info/10 p-3 rounded-lg text-sm text-base-content border border-info/20">
                       {{ getDecisionExplanation() }}
                     </div>
                   </div>
@@ -331,12 +328,12 @@
               <div class="space-y-4">
                 <!-- 车辆数据 -->
                 <div>
-                  <h3 class="text-sm font-medium text-base-content mb-3 uppercase tracking-wide">车辆数据</h3>
+                  <h3 class="text-base font-medium text-base-content mb-3 uppercase tracking-wide">车辆数据</h3>
                   <div class="space-y-3">
                     <div v-for="(value, key) in sensorData.vehicle" :key="key" class="flex items-center justify-between py-2 border-b border-base-300 last:border-b-0">
-                      <span class="text-sm text-base-content/70">{{ getSensorLabel(key) }}</span>
+                      <span class="text-base text-base-content/70">{{ getSensorLabel(key) }}</span>
                       <div class="flex items-center space-x-2">
-                        <span class="font-mono text-sm text-base-content">{{ formatValue(sensorMode === 'manual' ? manualSensorData.vehicle[key] : value, key) }}</span>
+                        <span class="font-mono text-base text-base-content">{{ formatValue(sensorMode === 'manual' ? manualSensorData.vehicle[key] : value, key) }}</span>
                         <input v-if="sensorMode === 'manual'"
                                type="range"
                                :value="manualSensorData.vehicle[key]"
@@ -352,12 +349,12 @@
 
                 <!-- 环境数据 -->
                 <div>
-                  <h3 class="text-sm font-medium text-base-content mb-3 uppercase tracking-wide">环境数据</h3>
+                  <h3 class="text-base font-medium text-base-content mb-3 uppercase tracking-wide">环境数据</h3>
                   <div class="space-y-3">
                     <div v-for="(value, key) in sensorData.env" :key="key" class="flex items-center justify-between py-2 border-b border-base-300 last:border-b-0">
-                      <span class="text-sm text-base-content/70">{{ getSensorLabel(key) }}</span>
+                      <span class="text-base text-base-content/70">{{ getSensorLabel(key) }}</span>
                       <div class="flex items-center space-x-2">
-                        <span class="font-mono text-sm text-base-content">{{ formatValue(sensorMode === 'manual' ? manualSensorData.env[key] : value, key) }}</span>
+                        <span class="font-mono text-base text-base-content">{{ formatValue(sensorMode === 'manual' ? manualSensorData.env[key] : value, key) }}</span>
                         <input v-if="sensorMode === 'manual' && key !== 'weather'"
                                type="range"
                                :value="manualSensorData.env[key]"
@@ -369,7 +366,7 @@
                         <select v-if="sensorMode === 'manual' && key === 'weather'"
                                 :value="manualSensorData.env[key]"
                                 @change="updateManualSensor('env', key, $event.target.value)"
-                                class="text-sm border border-gray-300 rounded px-2 py-1">
+                                class="text-base border border-gray-300 rounded px-2 py-1">
                           <option value="sunny">晴天</option>
                           <option value="cloudy">多云</option>
                           <option value="rainy">雨天</option>
@@ -380,10 +377,10 @@
                 </div>
 
                 <div v-if="sensorMode === 'manual'" class="flex justify-end space-x-2 pt-4 border-t border-gray-200">
-                  <button class="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-lg hover:bg-green-600 transition-colors duration-200" @click="applyManualSensors">
+                  <button class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-lg hover:bg-green-600 transition-colors duration-200" @click="applyManualSensors">
                     应用
                   </button>
-                  <button class="px-4 py-2 bg-base-300 text-base-content text-sm font-medium rounded-lg hover:bg-base-content/10 transition-colors duration-200" @click="resetManualSensors">
+                  <button class="px-4 py-2 bg-base-300 text-base-content text-base font-medium rounded-lg hover:bg-base-content/10 transition-colors duration-200" @click="resetManualSensors">
                     重置
                   </button>
                 </div>
@@ -393,14 +390,14 @@
           <div class="bg-base-100 rounded-xl shadow-sm border border-base-300 overflow-hidden">
             <div class="p-6">
               <h2 class="text-xl font-semibold text-base-content mb-4">系统事件日志</h2>
-              <div class="terminal-window max-h-64 overflow-y-auto bg-black text-green-400 font-mono text-sm rounded-lg border border-gray-600 shadow-inner">
+              <div class="terminal-window max-h-64 overflow-y-auto bg-black text-green-400 font-mono text-base rounded-lg border border-gray-600 shadow-inner">
                 <div class="terminal-header bg-gray-800 px-3 py-2 rounded-t-lg flex items-center justify-between">
                   <div class="flex items-center space-x-2">
                     <div class="w-3 h-3 bg-red-500 rounded-full"></div>
                     <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
                     <div class="w-3 h-3 bg-green-500 rounded-full"></div>
                   </div>
-                  <div class="text-xs text-base-content/50">SolarBoost Terminal</div>
+                  <div class="text-sm text-base-content/50">SolarBoost Terminal</div>
                   <div class="w-16"></div>
                 </div>
                 <div class="terminal-content p-3 space-y-1">
@@ -435,8 +432,8 @@
               <div class="grid grid-cols-3 gap-6">
                 <div class="space-y-3">
                   <div class="flex items-center justify-between">
-                    <span class="text-sm font-medium text-base-content">动力系统</span>
-                    <span class="text-sm font-mono text-blue-600">{{ manualCommand.to_motor }}W</span>
+                    <span class="text-base font-medium text-base-content">动力系统</span>
+                    <span class="text-base font-mono text-blue-600">{{ manualCommand.to_motor }}W</span>
                   </div>
                   <input type="range" min="0" :max="sensorData.pv?.power || 2000"
                          v-model.number="manualCommand.to_motor"
@@ -445,8 +442,8 @@
                 </div>
                 <div class="space-y-3">
                   <div class="flex items-center justify-between">
-                    <span class="text-sm font-medium text-base-content">附件系统</span>
-                    <span class="text-sm font-mono text-purple-600">{{ manualCommand.to_aux }}W</span>
+                    <span class="text-base font-medium text-base-content">附件系统</span>
+                    <span class="text-base font-mono text-purple-600">{{ manualCommand.to_aux }}W</span>
                   </div>
                   <input type="range" min="0" :max="sensorData.pv?.power || 2000"
                          v-model.number="manualCommand.to_aux"
@@ -455,8 +452,8 @@
                 </div>
                 <div class="space-y-3">
                   <div class="flex items-center justify-between">
-                    <span class="text-sm font-medium text-base-content">电池充电</span>
-                    <span class="text-sm font-mono text-green-600">{{ manualCommand.to_charge }}W</span>
+                    <span class="text-base font-medium text-base-content">电池充电</span>
+                    <span class="text-base font-mono text-green-600">{{ manualCommand.to_charge }}W</span>
                   </div>
                   <input type="range" min="0" :max="sensorData.pv?.power || 2000"
                          v-model.number="manualCommand.to_charge"
