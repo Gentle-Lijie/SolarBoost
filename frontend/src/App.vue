@@ -1,359 +1,473 @@
-<template>
-    <div class="min-h-screen bg-base-200">
+﻿<template>
+    <div class="min-h-screen bg-base-100">
     <!-- 顶部导航栏 -->
-    <div class="navbar bg-primary text-primary-content shadow-lg backdrop-blur-sm bg-opacity-90">
-      <div class="flex-1">
-        <a class="btn btn-ghost normal-case text-xl">
-          <span class="text-2xl">🌞</span>
-          <span class="ml-2">SolarBoost 智能太阳能调度系统</span>
-        </a>
-        <div class="badge badge-secondary ml-4">AI驱动</div>
-        
-        <!-- 模拟速度按钮组 -->
-        <div class="ml-6 flex items-center gap-2">
-          <span class="text-xs opacity-70">模拟速度:</span>
-          <div class="btn-group">
-            <button 
-              :class="['btn btn-xs', simulationSpeed === 1 ? 'btn-active' : '']"
-              @click="setSimulationSpeed(1)"
-            >
-              快速
-            </button>
-            <button 
-              :class="['btn btn-xs', simulationSpeed === 2 ? 'btn-active' : '']"
-              @click="setSimulationSpeed(2)"
-            >
-              正常
-            </button>
-            <button 
-              :class="['btn btn-xs', simulationSpeed === 5 ? 'btn-active' : '']"
-              @click="setSimulationSpeed(5)"
-            >
-              缓慢
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="flex-none gap-2">
-        <!-- 主题切换按钮 -->
-        <button 
-          class="btn btn-circle btn-ghost mr-2"
-          @click="toggleTheme"
-          :title="isDarkTheme ? '切换到亮色主题' : '切换到暗色主题'"
-        >
-          <span class="text-2xl">{{ isDarkTheme ? '☀️' : '🌙' }}</span>
-        </button>
-        
-        <div class="stats stats-horizontal shadow">
-          <div class="stat py-2 px-4">
-            <div class="stat-title text-xs">电池SOC</div>
-            <div class="stat-value text-lg" :class="sensorData.vehicle?.soc > 0.8 ? 'text-success' : sensorData.vehicle?.soc > 0.3 ? 'text-warning' : 'text-error'">
-              {{ (sensorData.vehicle?.soc * 100 || 0).toFixed(1) }}%
+    <div class="bg-base-100 border-b border-base-300 shadow-sm">
+      <div class="max-w-[1920px] mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-8">
+            <!-- Logo -->
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-sm">SB</span>
+              </div>
+              <div>
+                <h1 class="text-xl font-semibold text-base-content">SolarBoost</h1>
+                <p class="text-xs text-base-content/60">智能太阳能调度系统</p>
+              </div>
+            </div>
+
+            <!-- 模拟速度控制 -->
+            <div class="flex items-center space-x-3">
+              <span class="text-sm font-medium text-base-content">模拟速度</span>
+              <div class="flex bg-base-200 rounded-lg p-1">
+                <button
+                  :class="[
+                    'px-3 py-1 text-sm font-medium rounded-md transition-all duration-200',
+                    simulationSpeed === 1
+                      ? 'bg-primary text-primary-content shadow-sm'
+                      : 'text-base-content/70 hover:text-base-content hover:bg-base-300'
+                  ]"
+                  @click="setSimulationSpeed(1)"
+                >
+                  快速
+                </button>
+                <button
+                  :class="[
+                    'px-3 py-1 text-sm font-medium rounded-md transition-all duration-200',
+                    simulationSpeed === 2
+                      ? 'bg-primary text-primary-content shadow-sm'
+                      : 'text-base-content/70 hover:text-base-content hover:bg-base-300'
+                  ]"
+                  @click="setSimulationSpeed(2)"
+                >
+                  正常
+                </button>
+                <button
+                  :class="[
+                    'px-3 py-1 text-sm font-medium rounded-md transition-all duration-200',
+                    simulationSpeed === 5
+                      ? 'bg-primary text-primary-content shadow-sm'
+                      : 'text-base-content/70 hover:text-base-content hover:bg-base-300'
+                  ]"
+                  @click="setSimulationSpeed(5)"
+                >
+                  缓慢
+                </button>
+              </div>
+            </div>
+
+            <!-- 驱动模式选择 -->
+            <div class="flex items-center space-x-3">
+              <span class="text-sm font-medium text-base-content">驱动模式</span>
+              <div class="flex bg-base-200 rounded-lg p-1">
+                <button
+                  v-for="mode in modes"
+                  :key="mode.value"
+                  :class="[
+                    'px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 flex items-center space-x-2',
+                    currentMode === mode.value
+                      ? 'bg-primary text-primary-content shadow-sm'
+                      : 'text-base-content/70 hover:text-base-content hover:bg-base-300'
+                  ]"
+                  @click="switchMode(mode.value)"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path v-if="mode.icon === 'brain'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    <path v-else-if="mode.icon === 'leaf'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                    <path v-else-if="mode.icon === 'zap'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    <path v-else-if="mode.icon === 'settings'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span>{{ mode.name }}</span>
+                </button>
+              </div>
             </div>
           </div>
-          <div class="stat py-2 px-4">
-            <div class="stat-title text-xs">光伏功率</div>
-            <div class="stat-value text-lg text-warning">{{ sensorData.pv?.power || 0 }}W</div>
-          </div>
-          <div class="stat py-2 px-4">
-            <div class="stat-title text-xs">当前模式</div>
-            <div class="stat-value text-lg font-bold">{{ modeText }}</div>
+
+          <!-- 右侧状态栏 -->
+          <div class="flex items-center space-x-6">
+            <!-- 主题切换 -->
+            <button
+              class="p-2 text-base-content/70 hover:text-base-content hover:bg-base-300 rounded-lg transition-colors duration-200"
+              @click="toggleTheme"
+              :title="isDarkTheme ? '切换到亮色主题' : '切换到暗色主题'"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path v-if="isDarkTheme" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+              </svg>
+            </button>
+
+            <!-- 状态卡片 -->
+            <div class="flex space-x-4">
+              <div class="bg-base-100 border border-base-300 rounded-lg px-4 py-2 shadow-sm">
+                <div class="text-xs text-base-content/60 uppercase tracking-wide">电池SOC</div>
+                <div class="text-lg font-semibold text-base-content">
+                  {{ (sensorData.vehicle?.soc * 100 || 0).toFixed(1) }}%
+                </div>
+              </div>
+              <div class="bg-base-100 border border-base-300 rounded-lg px-4 py-2 shadow-sm">
+                <div class="text-xs text-base-content/60 uppercase tracking-wide">光伏功率</div>
+                <div class="text-lg font-semibold text-warning">
+                  {{ sensorData.pv?.power || 0 }}W
+                </div>
+              </div>
+              <div class="bg-base-100 border border-base-300 rounded-lg px-4 py-2 shadow-sm">
+                <div class="text-xs text-base-content/60 uppercase tracking-wide">当前模式</div>
+                <div class="text-lg font-semibold text-primary">
+                  {{ modeText }}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 主内容区 -->
-    <div class="container mx-auto p-4 max-w-[1920px]">
-      <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
-        <!-- 左侧列：地图和能量流 -->
-        <div class="xl:col-span-2 space-y-4">
-          <!-- 路网与车辆位置 -->
-          <div class="card bg-base-100 shadow-xl">
-            <div class="card-body">
-              <h2 class="card-title">
-                <span class="text-2xl">🗺️</span>
-                路网与车辆位置
-                <div class="badge badge-info">{{ sensorData.road?.segment_name || '-' }}</div>
-              </h2>
-              <div class="w-full overflow-hidden rounded-lg bg-neutral" style="height: 400px;">
+    <div class="flex-1 overflow-y-auto bg-base-100">
+      <div class="max-w-[1920px] mx-auto p-6">
+        <!-- 第一行：路网和能量流动图 -->
+        <div class="grid grid-cols-3 gap-6 mb-6">
+          <!-- 路网与车辆位置 (占2列) -->
+          <div class="col-span-2 bg-base-100 rounded-xl shadow-sm border border-base-300 overflow-hidden">
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-base-content">路网与车辆位置</h2>
+                <div class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                  {{ sensorData.road?.segment_name || '-' }}
+                </div>
+              </div>
+              <div class="w-full overflow-hidden rounded-lg bg-gray-900" style="height: 280px;">
                 <canvas ref="roadCanvas" style="width: 100%; height: 100%;"></canvas>
               </div>
-              <div class="flex justify-between text-sm mt-2">
-                <div class="stat-desc flex items-center gap-2">
-                  <span class="text-lg">🚗</span>
-                  速度: {{ sensorData.vehicle?.speed?.toFixed(1) || 0 }} km/h
+              <div class="flex justify-between items-center mt-4 text-sm text-base-content/70">
+                <div class="flex items-center space-x-2">
+                  <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span>速度: {{ sensorData.vehicle?.speed?.toFixed(1) || 0 }} km/h</span>
                 </div>
-                <div class="stat-desc flex items-center gap-2">
-                  <span class="text-lg">📍</span>
-                  进度: {{ ((sensorData.road?.position / sensorData.road?.total_length * 100) || 0).toFixed(1) }}%
+                <div class="flex items-center space-x-2">
+                  <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>进度: {{ ((sensorData.road?.position / sensorData.road?.total_length * 100) || 0).toFixed(1) }}%</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- 能量流动可视化 -->
+          <!-- 能量流动可视化 (占1列) -->
           <div class="card bg-base-100 shadow-xl">
             <div class="card-body">
               <h2 class="card-title">
-                <span class="text-2xl">⚡</span>
                 能量流动可视化
               </h2>
-              <div class="flex items-center justify-around py-8">
-                <!-- 太阳能源 -->
-                <div class="flex flex-col items-center">
-                  <div class="radial-progress text-warning" :style="`--value:${Math.min((sensorData.pv?.power || 0) / 50, 100)};`" role="progressbar">
-                    <span class="text-3xl">☀️</span>
+              <div class="flex gap-6 py-4">
+                <!-- 左侧：太阳能输入和能量平衡 -->
+                <div class="flex flex-col items-center justify-center space-y-4 flex-1">
+                  <!-- 太阳能源输入 -->
+                  <div class="flex flex-col items-center">
+                    <div class="radial-progress text-primary" :style="`--value:${Math.min((sensorData.pv?.power || 0) / 50, 100)};`" role="progressbar">
+                      <span class="text-2xl font-bold text-primary">{{ sensorData.pv?.power || 0 }}</span>
+                    </div>
+                    <div class="text-center mt-2">
+                      <div class="font-bold text-lg text-primary">{{ sensorData.pv?.power || 0 }}W</div>
+                      <div class="text-xs opacity-70">太阳能输入</div>
+                    </div>
                   </div>
-                  <div class="text-center mt-2">
-                    <div class="font-bold text-lg">{{ sensorData.pv?.power || 0 }}W</div>
-                    <div class="text-xs opacity-70">太阳能输入</div>
+
+                  <!-- 总能量平衡 -->
+                  <div class="w-full bg-base-200 p-4 rounded-lg">
+                    <div class="text-center">
+                      <div class="text-sm font-medium mb-2">能量平衡</div>
+                      <div class="grid grid-cols-1 gap-2 text-sm">
+                        <div class="flex justify-between">
+                          <span>输入:</span>
+                          <span class="font-mono text-success">{{ sensorData.pv?.power?.toFixed(0) || 0 }}W</span>
+                        </div>
+                        <div class="flex justify-between">
+                          <span>输出:</span>
+                          <span class="font-mono text-info">{{ (dispatchCommand.to_motor + dispatchCommand.to_aux + dispatchCommand.to_charge || 0).toFixed(0) }}W</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <!-- 流动指示器 -->
-                <div class="flex flex-col gap-4">
-                  <div class="flex items-center gap-2">
-                    <div class="w-32 h-2 bg-base-300 rounded-full overflow-hidden">
-                      <div class="h-full bg-gradient-to-r from-warning to-info" 
+                <!-- 右侧：能量分配详情 -->
+                <div class="flex-1 space-y-3">
+                  <!-- 动力系统 -->
+                  <div class="bg-base-200 p-4 rounded-lg border-l-4 border-primary">
+                    <div class="flex justify-between items-center mb-2">
+                      <span class="text-sm font-medium">� 动力系统</span>
+                      <span class="text-sm font-mono text-primary">{{ dispatchCommand.to_motor?.toFixed(0) || 0 }}W</span>
+                    </div>
+                    <div class="w-full h-3 bg-base-300 rounded-full overflow-hidden mb-2">
+                      <div class="h-full bg-primary transition-all duration-300"
                            :style="`width: ${getFlowWidth('motor')}%`"></div>
                     </div>
-                    <span class="text-sm font-mono">{{ dispatchCommand.to_motor?.toFixed(0) || 0 }}W</span>
+                    <div class="text-xs opacity-70">实际需求: {{ predictions.energy?.predicted_motor_power?.toFixed(0) || 0 }}W</div>
                   </div>
-                  <div class="flex items-center gap-2">
-                    <div class="w-32 h-2 bg-base-300 rounded-full overflow-hidden">
-                      <div class="h-full bg-gradient-to-r from-warning to-secondary" 
+
+                  <!-- 附件系统 -->
+                  <div class="bg-base-200 p-4 rounded-lg border-l-4 border-secondary">
+                    <div class="flex justify-between items-center mb-2">
+                      <span class="text-sm font-medium">� 附件系统</span>
+                      <span class="text-sm font-mono text-secondary">{{ dispatchCommand.to_aux?.toFixed(0) || 0 }}W</span>
+                    </div>
+                    <div class="w-full h-3 bg-base-300 rounded-full overflow-hidden mb-2">
+                      <div class="h-full bg-secondary transition-all duration-300"
                            :style="`width: ${getFlowWidth('aux')}%`"></div>
                     </div>
-                    <span class="text-sm font-mono">{{ dispatchCommand.to_aux?.toFixed(0) || 0 }}W</span>
+                    <div class="text-xs opacity-70">实际需求: {{ predictions.energy?.predicted_aux_power?.toFixed(0) || 0 }}W</div>
                   </div>
-                  <div class="flex items-center gap-2">
-                    <div class="w-32 h-2 bg-base-300 rounded-full overflow-hidden">
-                      <div class="h-full bg-gradient-to-r from-warning to-success" 
+
+                  <!-- 电池充电 -->
+                  <div class="bg-base-200 p-4 rounded-lg border-l-4 border-accent">
+                    <div class="flex justify-between items-center mb-2">
+                      <span class="text-sm font-medium">🔋 电池充电</span>
+                      <span class="text-sm font-mono text-accent">{{ dispatchCommand.to_charge?.toFixed(0) || 0 }}W</span>
+                    </div>
+                    <div class="w-full h-3 bg-base-300 rounded-full overflow-hidden mb-2">
+                      <div class="h-full bg-accent transition-all duration-300"
                            :style="`width: ${getFlowWidth('charge')}%`"></div>
                     </div>
-                    <span class="text-sm font-mono">{{ dispatchCommand.to_charge?.toFixed(0) || 0 }}W</span>
+                    <div class="text-xs opacity-70">SOC: {{ (sensorData.vehicle?.soc * 100 || 0).toFixed(1) }}%</div>
                   </div>
                 </div>
-
-                <!-- 能量消耗端 -->
-                <div class="flex flex-col gap-4">
-                  <div class="flex items-center gap-3">
-                    <div class="avatar placeholder">
-                      <div class="bg-info text-neutral-content rounded-full w-12">
-                        <span class="text-xl">⚡</span>
-                      </div>
-                    </div>
-                    <div>
-                      <div class="font-bold">{{ sensorData.vehicle?.motor_power || 0 }}W</div>
-                      <div class="text-xs opacity-70">动力系统</div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-3">
-                    <div class="avatar placeholder">
-                      <div class="bg-secondary text-neutral-content rounded-full w-12">
-                        <span class="text-xl">❄️</span>
-                      </div>
-                    </div>
-                    <div>
-                      <div class="font-bold">{{ sensorData.vehicle?.aux_power || 0 }}W</div>
-                      <div class="text-xs opacity-70">附件系统</div>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-3">
-                    <div class="avatar placeholder">
-                      <div class="bg-success text-neutral-content rounded-full w-12">
-                        <span class="text-xl">🔋</span>
-                      </div>
-                    </div>
-                    <div>
-                      <div class="font-bold">{{ dispatchCommand.to_charge?.toFixed(0) || 0 }}W</div>
-                      <div class="text-xs opacity-70">电池充电</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 调度策略 -->
-          <div class="alert alert-info shadow-2xl border border-info/20 bg-gradient-to-r from-info/10 to-info/5 hover:shadow-3xl transition-all duration-300">
-            <div class="flex items-center gap-3">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-8 h-8">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              <div class="flex-1">
-                <h3 class="font-bold text-lg mb-1">智能调度策略</h3>
-                <div class="text-sm opacity-90">{{ dispatchCommand.reason || '等待数据...' }}</div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 右侧列：控制面板 -->
-        <div class="space-y-4">
-          <!-- 工作模式切换 -->
-          <div class="card bg-gradient-to-br from-base-100 to-base-200 shadow-2xl hover:shadow-3xl transition-all duration-300 border border-base-300">
-            <div class="card-body">
-              <h2 class="card-title">
-                <span class="text-3xl">🎮</span>
-                工作模式切换
-              </h2>
-              <div class="grid grid-cols-2 gap-4">
-                <button 
-                  v-for="mode in modes" 
-                  :key="mode.value"
-                  :class="[
-                    'btn m-2 hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg',
-                    currentMode === mode.value 
-                      ? 'btn-primary btn-active shadow-primary/50' 
-                      : 'btn-outline hover:bg-base-200'
-                  ]"
-                  @click="switchMode(mode.value)"
-                >
-                  <span class="text-2xl mr-2">{{ mode.icon }}</span>
-                  <span class="font-bold">{{ mode.name }}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- 传感器控制 -->
-          <div class="card bg-gradient-to-br from-base-100 to-base-200 shadow-2xl hover:shadow-3xl transition-all duration-300 border border-base-300">
-            <div class="card-body max-h-[600px] overflow-y-auto">
-              <h2 class="card-title">
-                <span class="text-3xl">📡</span>
-                传感器数据控制
-              </h2>
-              <div class="btn-group btn-group-horizontal w-full mb-4 gap-2">
-                <button 
-                  :class="['btn btn-sm flex-1 hover:scale-105 transition-transform', sensorMode === 'auto' ? 'btn-active btn-success' : 'btn-outline']"
-                  @click="setSensorMode('auto')"
-                >
-                  🤖 自动模式
-                </button>
-                <button 
-                  :class="['btn btn-sm flex-1 hover:scale-105 transition-transform', sensorMode === 'manual' ? 'btn-active btn-warning' : 'btn-outline']"
-                  @click="setSensorMode('manual')"
-                >
-                  🎛️ 手动模式
-                </button>
-              </div>
-              
-              <div class="divider">车辆系统</div>
-              <div class="space-y-2">
-                <div v-for="(value, key) in sensorData.vehicle" :key="key" class="form-control">
-                  <label class="label py-1">
-                    <span class="label-text text-xs">{{ getSensorLabel(key) }}</span>
-                    <span class="label-text-alt font-mono text-xs">{{ formatValue(sensorMode === 'manual' ? manualSensorData.vehicle[key] : value, key) }}</span>
-                  </label>
-                  <input v-if="sensorMode === 'manual'" 
-                         type="range" 
-                         :value="manualSensorData.vehicle[key]" 
-                         @input="updateManualSensor('vehicle', key, $event.target.value)"
-                         :min="getSensorMin(key)"
-                         :max="getSensorMax(key)"
-                         :step="getSensorStep(key)"
-                         class="range range-xs range-accent" />
-                </div>
-              </div>
-
-              <div class="divider">环境监测</div>
-              <div class="space-y-2">
-                <div v-for="(value, key) in sensorData.env" :key="key" class="form-control">
-                  <label class="label py-1">
-                    <span class="label-text text-xs">{{ getSensorLabel(key) }}</span>
-                    <span class="label-text-alt font-mono text-xs">{{ formatValue(sensorMode === 'manual' ? manualSensorData.env[key] : value, key) }}</span>
-                  </label>
-                  <input v-if="sensorMode === 'manual' && key !== 'weather'" 
-                         type="range" 
-                         :value="manualSensorData.env[key]" 
-                         @input="updateManualSensor('env', key, $event.target.value)"
-                         :min="getSensorMin(key)"
-                         :max="getSensorMax(key)"
-                         :step="getSensorStep(key)"
-                         class="range range-xs range-accent" />
-                  <select v-if="sensorMode === 'manual' && key === 'weather'" 
-                          :value="manualSensorData.env[key]"
-                          @change="updateManualSensor('env', key, $event.target.value)"
-                          class="select select-xs select-bordered">
-                    <option value="sunny">晴天</option>
-                    <option value="cloudy">多云</option>
-                    <option value="rainy">雨天</option>
-                  </select>
-                </div>
-              </div>
-
-              <div v-if="sensorMode === 'manual'" class="card-actions justify-end mt-4 gap-2">
-                <button class="btn btn-sm btn-success" @click="applyManualSensors">应用设置</button>
-                <button class="btn btn-sm btn-ghost" @click="resetManualSensors">重置</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- 手动控制面板 -->
-          <div v-if="currentMode === 'manual'" class="card bg-base-100 shadow-xl">
-            <div class="card-body">
-              <h2 class="card-title">
-                <span class="text-2xl">🎛️</span>
-                手动控制
-              </h2>
+        <!-- 第二行：学习过程，传感器数据和日志 -->
+        <div class="grid grid-cols-3 gap-6">
+          <!-- 机器学习驱动过程 (占1列) -->
+          <div class="bg-base-100 rounded-xl shadow-sm border border-base-300 overflow-hidden">
+            <div class="p-6">
+              <h2 class="text-xl font-semibold text-base-content mb-4">机器学习驱动过程</h2>
               <div class="space-y-4">
-                <div class="form-control">
-                  <label class="label">
-                    <span class="label-text">动力系统</span>
-                    <span class="label-text-alt">{{ manualCommand.to_motor }}W</span>
-                  </label>
-                  <input type="range" min="0" :max="sensorData.pv?.power || 2000" 
+                <!-- 能耗预测 -->
+                <div class="bg-base-200 p-4 rounded-lg border border-base-300">
+                  <h4 class="font-medium text-sm text-base-content mb-3">能耗预测</h4>
+                  <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                      <span class="text-base-content/70">动力:</span>
+                      <span class="font-mono text-primary">{{ predictions.energy?.predicted_motor_power?.toFixed(0) || 0 }}W</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-base-content/70">附件:</span>
+                      <span class="font-mono text-secondary">{{ predictions.energy?.predicted_aux_power?.toFixed(0) || 0 }}W</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-base-content/70">信心:</span>
+                      <span class="font-mono text-success">{{ ((predictions.energy?.confidence || 0) * 100).toFixed(1) }}%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 光伏预测 -->
+                <div class="bg-base-200 p-4 rounded-lg border border-base-300">
+                  <h4 class="font-medium text-sm text-base-content mb-3">光伏预测</h4>
+                  <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                      <span class="text-base-content/70">功率:</span>
+                      <span class="font-mono text-warning">{{ predictions.solar?.predicted_pv_power?.toFixed(0) || 0 }}W</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-base-content/70">信心:</span>
+                      <span class="font-mono text-success">{{ ((predictions.solar?.confidence || 0) * 100).toFixed(1) }}%</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-base-content/70">效率:</span>
+                      <span class="font-mono text-base-content">{{ sensorData.pv?.efficiency ? (sensorData.pv.efficiency * 100).toFixed(1) : 0 }}%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 决策解释 -->
+                <div class="bg-base-200 p-4 rounded-lg border border-base-300">
+                  <h4 class="font-medium text-sm text-base-content mb-3">决策理由</h4>
+                  <div class="text-sm">
+                    <div class="font-medium text-base-content mb-2">{{ getCurrentScenario() }}</div>
+                    <div class="bg-info/10 p-3 rounded-lg text-xs text-base-content border border-info/20">
+                      {{ getDecisionExplanation() }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 传感器数据 (占1列) -->
+          <div class="bg-base-100 rounded-xl shadow-sm border border-base-300 overflow-hidden">
+            <div class="p-6 max-h-[500px] overflow-y-auto">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-base-content">传感器数据</h2>
+                <div class="flex bg-base-200 rounded-lg p-1">
+                  <button
+                    :class="[
+                      'px-3 py-1 text-sm font-medium rounded-md transition-all duration-200',
+                      sensorMode === 'auto'
+                        ? 'bg-success text-success-content shadow-sm'
+                        : 'text-base-content/70 hover:text-base-content hover:bg-base-300'
+                    ]"
+                    @click="setSensorMode('auto')"
+                  >
+                    自动
+                  </button>
+                  <button
+                    :class="[
+                      'px-3 py-1 text-sm font-medium rounded-md transition-all duration-200',
+                      sensorMode === 'manual'
+                        ? 'bg-warning text-warning-content shadow-sm'
+                        : 'text-base-content/70 hover:text-base-content hover:bg-base-300'
+                    ]"
+                    @click="setSensorMode('manual')"
+                  >
+                    手动
+                  </button>
+                </div>
+              </div>
+
+              <div class="space-y-4">
+                <!-- 车辆数据 -->
+                <div>
+                  <h3 class="text-sm font-medium text-base-content mb-3 uppercase tracking-wide">车辆数据</h3>
+                  <div class="space-y-3">
+                    <div v-for="(value, key) in sensorData.vehicle" :key="key" class="flex items-center justify-between py-2 border-b border-base-300 last:border-b-0">
+                      <span class="text-sm text-base-content/70">{{ getSensorLabel(key) }}</span>
+                      <div class="flex items-center space-x-2">
+                        <span class="font-mono text-sm text-base-content">{{ formatValue(sensorMode === 'manual' ? manualSensorData.vehicle[key] : value, key) }}</span>
+                        <input v-if="sensorMode === 'manual'"
+                               type="range"
+                               :value="manualSensorData.vehicle[key]"
+                               @input="updateManualSensor('vehicle', key, $event.target.value)"
+                               :min="getSensorMin(key)"
+                               :max="getSensorMax(key)"
+                               :step="getSensorStep(key)"
+                               class="w-16 h-1 bg-base-300 rounded-lg appearance-none cursor-pointer slider" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 环境数据 -->
+                <div>
+                  <h3 class="text-sm font-medium text-base-content mb-3 uppercase tracking-wide">环境数据</h3>
+                  <div class="space-y-3">
+                    <div v-for="(value, key) in sensorData.env" :key="key" class="flex items-center justify-between py-2 border-b border-base-300 last:border-b-0">
+                      <span class="text-sm text-base-content/70">{{ getSensorLabel(key) }}</span>
+                      <div class="flex items-center space-x-2">
+                        <span class="font-mono text-sm text-base-content">{{ formatValue(sensorMode === 'manual' ? manualSensorData.env[key] : value, key) }}</span>
+                        <input v-if="sensorMode === 'manual' && key !== 'weather'"
+                               type="range"
+                               :value="manualSensorData.env[key]"
+                               @input="updateManualSensor('env', key, $event.target.value)"
+                               :min="getSensorMin(key)"
+                               :max="getSensorMax(key)"
+                               :step="getSensorStep(key)"
+                               class="w-16 h-1 bg-base-300 rounded-lg appearance-none cursor-pointer slider" />
+                        <select v-if="sensorMode === 'manual' && key === 'weather'"
+                                :value="manualSensorData.env[key]"
+                                @change="updateManualSensor('env', key, $event.target.value)"
+                                class="text-sm border border-gray-300 rounded px-2 py-1">
+                          <option value="sunny">晴天</option>
+                          <option value="cloudy">多云</option>
+                          <option value="rainy">雨天</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="sensorMode === 'manual'" class="flex justify-end space-x-2 pt-4 border-t border-gray-200">
+                  <button class="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-lg hover:bg-green-600 transition-colors duration-200" @click="applyManualSensors">
+                    应用
+                  </button>
+                  <button class="px-4 py-2 bg-base-300 text-base-content text-sm font-medium rounded-lg hover:bg-base-content/10 transition-colors duration-200" @click="resetManualSensors">
+                    重置
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>          <!-- 系统事件日志 (占1列) -->
+          <div class="bg-base-100 rounded-xl shadow-sm border border-base-300 overflow-hidden">
+            <div class="p-6">
+              <h2 class="text-xl font-semibold text-base-content mb-4">系统事件日志</h2>
+              <div class="terminal-window max-h-64 overflow-y-auto bg-black text-green-400 font-mono text-sm rounded-lg border border-gray-600 shadow-inner">
+                <div class="terminal-header bg-gray-800 px-3 py-2 rounded-t-lg flex items-center justify-between">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                  </div>
+                  <div class="text-xs text-base-content/50">SolarBoost Terminal</div>
+                  <div class="w-16"></div>
+                </div>
+                <div class="terminal-content p-3 space-y-1">
+                  <div v-for="(event, index) in events" :key="index"
+                       :class="[
+                         'terminal-line transition-all duration-200 hover:bg-gray-900 px-2 py-1 rounded',
+                         getLogClass(event.type)
+                       ]">
+                    <span class="terminal-prompt text-green-300">$</span>
+                    <span class="terminal-timestamp text-base-content/60 ml-2">[{{ event.timestamp }}]</span>
+                    <span class="terminal-message ml-2">{{ event.message }}</span>
+                  </div>
+                  <div v-if="events.length === 0" class="terminal-line text-center py-4 opacity-50">
+                    <span class="terminal-prompt text-green-300">$</span>
+                    <span class="terminal-message ml-2">No system events recorded...</span>
+                  </div>
+                  <div class="terminal-line">
+                    <span class="terminal-prompt text-green-300">$</span>
+                    <span class="terminal-cursor ml-2 animate-pulse">_</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 手动控制面板 (条件显示) -->
+        <div v-if="currentMode === 'manual'" class="mt-6">
+          <div class="bg-base-100 rounded-xl shadow-sm border border-base-300 overflow-hidden">
+            <div class="p-6">
+              <h2 class="text-xl font-semibold text-base-content mb-4">手动控制</h2>
+              <div class="grid grid-cols-3 gap-6">
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-base-content">动力系统</span>
+                    <span class="text-sm font-mono text-blue-600">{{ manualCommand.to_motor }}W</span>
+                  </div>
+                  <input type="range" min="0" :max="sensorData.pv?.power || 2000"
                          v-model.number="manualCommand.to_motor"
                          @input="updateManualCommand"
-                         class="range range-info" />
+                         class="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer slider" />
                 </div>
-                <div class="form-control">
-                  <label class="label">
-                    <span class="label-text">附件系统</span>
-                    <span class="label-text-alt">{{ manualCommand.to_aux }}W</span>
-                  </label>
-                  <input type="range" min="0" :max="sensorData.pv?.power || 2000" 
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-base-content">附件系统</span>
+                    <span class="text-sm font-mono text-purple-600">{{ manualCommand.to_aux }}W</span>
+                  </div>
+                  <input type="range" min="0" :max="sensorData.pv?.power || 2000"
                          v-model.number="manualCommand.to_aux"
                          @input="updateManualCommand"
-                         class="range range-secondary" />
+                         class="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer slider" />
                 </div>
-                <div class="form-control">
-                  <label class="label">
-                    <span class="label-text">电池充电</span>
-                    <span class="label-text-alt">{{ manualCommand.to_charge }}W</span>
-                  </label>
-                  <input type="range" min="0" :max="sensorData.pv?.power || 2000" 
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-base-content">电池充电</span>
+                    <span class="text-sm font-mono text-green-600">{{ manualCommand.to_charge }}W</span>
+                  </div>
+                  <input type="range" min="0" :max="sensorData.pv?.power || 2000"
                          v-model.number="manualCommand.to_charge"
                          @input="updateManualCommand"
-                         class="range range-success" />
+                         class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider" />
                 </div>
-                <button class="btn btn-primary w-full m-2" @click="applyManualCommand">应用设置</button>
               </div>
-            </div>
-          </div>
-
-          <!-- 系统日志 -->
-          <div class="card bg-gradient-to-br from-base-100 to-base-200 shadow-2xl hover:shadow-3xl transition-all duration-300 border border-base-300">
-            <div class="card-body">
-              <h2 class="card-title">
-                <span class="text-3xl">📋</span>
-                系统事件日志
-              </h2>
-              <div class="mockup-code max-h-64 overflow-y-auto bg-base-300 shadow-inner rounded-lg">
-                <div v-for="(event, index) in events" :key="index" 
-                     :class="[
-                       'px-4 py-2 transition-all duration-200 hover:bg-base-100 rounded-md mx-2 my-1',
-                       getLogClass(event.type)
-                     ]">
-                  <span class="opacity-60 text-xs">[{{ event.timestamp }}]</span> 
-                  <span class="ml-2 font-medium">{{ event.message }}</span>
-                </div>
-                <div v-if="events.length === 0" class="px-4 py-4 opacity-50 text-center">
-                  <span class="text-2xl">📝</span>
-                  <div class="mt-2">暂无系统事件</div>
-                </div>
+              <div class="mt-6 flex justify-center">
+                <button class="px-6 py-3 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-sm" @click="applyManualCommand">
+                  应用设置
+                </button>
               </div>
             </div>
           </div>
@@ -375,10 +489,10 @@ export default {
       simulationSpeed: 2,
       isDarkTheme: false,
       modes: [
-        { value: 'auto', name: '自动', icon: '🤖' },
-        { value: 'eco', name: '节能', icon: '🌱' },
-        { value: 'performance', name: '性能', icon: '🚀' },
-        { value: 'manual', name: '手动', icon: '🎮' }
+        { value: 'auto', name: '自动', icon: 'brain' },
+        { value: 'eco', name: '节能', icon: 'leaf' },
+        { value: 'performance', name: '性能', icon: 'zap' },
+        { value: 'manual', name: '手动', icon: 'settings' }
       ],
       sensorData: {
         vehicle: {},
@@ -414,6 +528,8 @@ export default {
     }
   },
   mounted() {
+    // 设置默认主题为solarboost
+    document.documentElement.setAttribute('data-theme', 'solarboost')
     this.initCanvas()
     this.fetchRoadInfo()
     this.startSimulation()
@@ -431,7 +547,7 @@ export default {
         this.ctx = this.canvas.getContext('2d')
         const parent = this.canvas.parentElement
         this.canvas.width = parent.offsetWidth
-        this.canvas.height = 400
+        this.canvas.height = 300
       }
     },
     
@@ -518,12 +634,12 @@ export default {
         ctx.strokeRect(x, y, segmentWidth, roadHeight)
         
         ctx.fillStyle = '#ffffff'
-        ctx.font = '12px Arial'
+        ctx.font = '20px Arial'
         ctx.textAlign = 'center'
         ctx.fillText(segment.name, x + segmentWidth / 2, y - 10)
         
         ctx.fillStyle = '#ffd700'
-        ctx.font = '10px Arial'
+        ctx.font = '18px Arial'
         ctx.fillText(`${segment.speed_limit}km/h`, x + segmentWidth / 2, y + roadHeight + 15)
         
         ctx.strokeStyle = '#ffff00'
@@ -540,49 +656,45 @@ export default {
       const carX = margin + (currentPos / totalLength) * (width - 2 * margin)
       const carY = y + roadHeight / 2
       
+      // 绘制车为方块
       ctx.fillStyle = '#ff6b6b'
-      ctx.beginPath()
-      ctx.arc(carX, carY, 15, 0, Math.PI * 2)
-      ctx.fill()
+      ctx.fillRect(carX - 12, carY - 8, 24, 16)
+      
+      // 车轮
+      ctx.fillStyle = '#333'
+      ctx.fillRect(carX - 10, carY + 8, 4, 3)
+      ctx.fillRect(carX + 6, carY + 8, 4, 3)
       
       ctx.fillStyle = '#ffffff'
-      ctx.beginPath()
-      ctx.moveTo(carX + 10, carY)
-      ctx.lineTo(carX + 5, carY - 5)
-      ctx.lineTo(carX + 5, carY + 5)
-      ctx.closePath()
-      ctx.fill()
-      
-      ctx.fillStyle = '#ffffff'
-      ctx.font = 'bold 12px Arial'
+      ctx.font = 'bold 16px Arial'
       ctx.textAlign = 'center'
       ctx.fillText('🚗', carX, carY - 25)
       
       const speed = this.sensorData.vehicle?.speed || 0
       ctx.fillStyle = '#4caf50'
-      ctx.font = 'bold 14px Arial'
-      ctx.fillText(`${speed.toFixed(1)} km/h`, carX, carY + 40)
+      ctx.font = 'bold 24px Arial'
+      ctx.fillText(`${speed.toFixed(1)} km/h`, carX, carY + 45)
       
       const pvPower = this.sensorData.pv?.power || 0
       if (pvPower > 100) {
         ctx.fillStyle = '#ffd700'
         ctx.beginPath()
-        ctx.arc(carX, carY - 5, 8, 0, Math.PI * 2)
+        ctx.arc(carX, carY - 5, 10, 0, Math.PI * 2)
         ctx.fill()
         ctx.fillStyle = '#000'
-        ctx.font = '10px Arial'
+        ctx.font = '14px Arial'
         ctx.fillText('☀️', carX, carY - 2)
       }
       
       ctx.fillStyle = 'rgba(76, 175, 80, 0.3)'
-      ctx.fillRect(margin, y + roadHeight + 35, (width - 2 * margin) * (currentPos / totalLength), 8)
+      ctx.fillRect(margin, y + roadHeight + 35, (width - 2 * margin) * (currentPos / totalLength), 10)
       ctx.strokeStyle = '#4caf50'
-      ctx.strokeRect(margin, y + roadHeight + 35, width - 2 * margin, 8)
+      ctx.strokeRect(margin, y + roadHeight + 35, width - 2 * margin, 10)
       
       ctx.fillStyle = '#4caf50'
-      ctx.font = '12px Arial'
+      ctx.font = '20px Arial'
       ctx.textAlign = 'right'
-      ctx.fillText(`进度: ${((currentPos / totalLength) * 100).toFixed(1)}%`, width - margin, y + roadHeight + 60)
+      ctx.fillText(`进度: ${((currentPos / totalLength) * 100).toFixed(1)}%`, width - margin, y + roadHeight + 65)
     },
     
     getFlowWidth(target) {
@@ -779,10 +891,10 @@ export default {
       if (this.isDarkTheme) {
         html.setAttribute('data-theme', 'dark')
       } else {
-        html.setAttribute('data-theme', 'light')
+        html.setAttribute('data-theme', 'solarboost')
       }
       // 保存主题设置到本地存储
-      localStorage.setItem('theme', this.isDarkTheme ? 'dark' : 'light')
+      localStorage.setItem('theme', this.isDarkTheme ? 'dark' : 'solarboost')
     },
     
     loadTheme() {
@@ -792,7 +904,47 @@ export default {
         document.documentElement.setAttribute('data-theme', 'dark')
       } else {
         this.isDarkTheme = false
-        document.documentElement.setAttribute('data-theme', 'light')
+        document.documentElement.setAttribute('data-theme', 'solarboost')
+      }
+    },
+    
+    getCurrentScenario() {
+      const speed = this.sensorData.vehicle?.speed || 0
+      const accel = this.sensorData.vehicle?.accel || 0
+      
+      if (accel > 0.5 || speed > 80) return '高能耗场景（加速/高速）'
+      if (speed < 30) return '低速巡航'
+      return '正常行驶'
+    },
+    
+    getOptimizationGoal() {
+      const mode = this.dispatchCommand.mode
+      if (mode === 'eco') return '最大化太阳能利用，优先充电'
+      if (mode === 'performance') return '优先动力系统性能'
+      if (mode === 'manual') return '用户自定义控制'
+      return '智能平衡分配能源'
+    },
+    
+    getDecisionExplanation() {
+      const mode = this.dispatchCommand.mode
+      const speed = this.sensorData.vehicle?.speed || 0
+      const accel = this.sensorData.vehicle?.accel || 0
+      const soc = this.sensorData.vehicle?.soc || 0.5
+      
+      if (mode === 'auto') {
+        if (accel > 0.5 || speed > 80) {
+          return '检测到高能耗场景，机器学习模型预测需要大量动力功率。系统优先分配太阳能辅助动力系统，同时保证附件系统基本供电，剩余能源用于电池充电，以维持车辆性能。'
+        } else if (speed < 30) {
+          return '当前处于低速巡航状态，能耗相对较低。机器学习模型建议优先为附件系统供电并补充电池电量，充分利用太阳能资源，提高整体能源效率。'
+        } else {
+          return '正常行驶状态下，基于历史数据和实时传感器输入，机器学习模型采用平衡策略：适度辅助动力系统、保证附件供电、适量充电，实现能源的最优分配。'
+        }
+      } else if (mode === 'eco') {
+        return '节能模式激活。机器学习优化算法优先考虑长期能源效率，根据电池SOC状态智能分配太阳能：SOC较低时优先充电，SOC充足时平衡各系统需求。'
+      } else if (mode === 'performance') {
+        return '性能模式激活。机器学习模型分析当前驾驶条件，优先为动力系统分配太阳能资源，确保车辆在各种工况下都能获得最佳性能表现。'
+      } else {
+        return '手动控制模式。用户根据具体需求自定义能源分配策略，系统将严格按照用户指令执行调度。'
       }
     }
   }
@@ -800,36 +952,35 @@ export default {
 </script>
 
 <style scoped>
-/* DaisyUI会处理大部分样式，只需要少量自定义 */
-.radial-progress {
-  --size: 6rem;
-  --thickness: 6px;
+/* 自定义滑块样式 */
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
 }
 
-/* 自定义动画和效果 */
-@keyframes glow {
-  0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
-  50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8); }
+.slider::-webkit-slider-thumb:hover {
+  background: #2563eb;
+  transform: scale(1.1);
 }
 
-.btn-primary {
-  animation: glow 2s ease-in-out infinite;
+.slider::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
 }
 
-.card:hover {
-  transform: translateY(-2px);
-}
-
-.stats .stat:hover {
-  transform: scale(1.02);
-}
-
-/* 渐变文本效果 */
-.gradient-text {
-  background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.slider::-moz-range-thumb:hover {
+  background: #2563eb;
 }
 
 /* 滚动条美化 */
@@ -849,5 +1000,94 @@ export default {
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.5);
+}
+
+/* CLI终端样式 */
+.terminal-window {
+  font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+  background: #000000;
+  color: #00ff00;
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.terminal-header {
+  background: linear-gradient(90deg, #2d2d2d 0%, #3d3d3d 100%);
+  border-bottom: 1px solid #555;
+}
+
+.terminal-content {
+  background: #000000;
+  min-height: 150px;
+}
+
+.terminal-line {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.terminal-prompt {
+  color: #00ff00;
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+.terminal-timestamp {
+  color: #888;
+  font-size: 11px;
+}
+
+.terminal-message {
+  color: #00ff00;
+  flex: 1;
+}
+
+.terminal-cursor {
+  color: #00ff00;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* 日志类型颜色 */
+.terminal-line.info .terminal-message {
+  color: #00ff00;
+}
+
+.terminal-line.warning .terminal-message {
+  color: #ffff00;
+}
+
+.terminal-line.error .terminal-message {
+  color: #ff4444;
+}
+
+.terminal-line.success .terminal-message {
+  color: #00ff88;
+}
+
+/* 卡片悬停效果 */
+.card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 按钮动画 */
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+/* 渐变文本效果 */
+.gradient-text {
+  background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 </style>
